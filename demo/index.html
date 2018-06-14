@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>js-sdk-test</title>
+  <link rel="stylesheet" href="index.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
+  <script src="jquery.min.js"></script>
+  <script src="jquery.cookie.min.js"></script>
+  <script src="../src/gizwits_ws_0.3.0.min.js"></script>
+  <script type="text/javascript">
+    var gizwitsws;
+    var devicesDid;
+
+    var apiHost = "api.gizwits.com";
+    var commType = "attrs_v4";
+    var wechatOpenId = "7777777";
+    var gizwitsAppId = "71af18b64fdd4e30a53cf28db2ac83df";
+
+    var sendArry = new Array(50); // 控制发送数组初始化
+    sendArry.fill(0);
+
+    var reciveBuffer = new Array(50); // 接收缓冲数组
+    var historyBuffer = new Array(); // 历史存储数组
+
+    $(document).ready(newObj || setDefault);
+
+    function setDefault() {
+      $('#apiHost').val($.cookie('apiHost'));
+      $('#commType').val($.cookie('commType'));
+      $('#wechatOpenId').val($.cookie('wechatOpenId'));
+      $('#gizwitsAppId').val($.cookie('gizwitsAppId'));
+    }
+
+    function newObj() {
+      gizwitsws = new GizwitsWS(apiHost, wechatOpenId, gizwitsAppId, commType);
+
+      gizwitsws.onInit = onInit;
+      gizwitsws.onConnected = onConnected;
+      gizwitsws.onOnlineStatusChanged = onOnlineStatusChanged;
+      gizwitsws.onReceivedRaw = onReceivedRaw;
+      gizwitsws.onReceivedAttrs = onReceivedAttrs;
+      gizwitsws.onError = onError;
+
+      $.cookie('apiHost', apiHost);
+      $.cookie('commType', commType);
+      $.cookie('wechatOpenId', wechatOpenId);
+      $.cookie('gizwitsAppId', gizwitsAppId);
+      showScreen("初始化对象成功!");
+
+      init();  // 初始化列表
+    }
+
+    function init() {   // 获取设备列表函数
+      gizwitsws.init();
+      conndids = [];
+      showScreen("已发送init指令……");
+    }
+
+    function connect() {    // 建立websocket函数
+      // var did = $('#did').val();
+      var did = devicesDid;   // 获取设备did
+      gizwitsws.connect(did);
+      showScreen("已发送connect指令……");
+    }
+
+    function read() {   // 读取下位机设备信息函数
+      var did = devicesDid;
+      var names = '';
+      if (names == "") {
+        gizwitsws.read(did, null);
+      } else {
+        gizwitsws.read(did, JSON.parse(names));
+      };
+      showScreen("已发送read指令……");
+    }
+
+    function writeCommand() {     // 控制下位机设备函数
+      var did = devicesDid;
+      if (commType == "attrs_v4") {
+        // var attrs = {"valuedata": [1,2,3,4]};     // 控制指令有点问题
+        var attrs = $('#command').val()
+        try {
+          gizwitsws.write(did, JSON.parse(attrs));
+          showScreen("已对设备" + did + "发送write指令: " + attrs);
+        } catch (e) {
+          showError("数据格式错误：" + e);
+        }
+      } else {
+        var raw = $('#command').val();
+        try {
+          gizwitsws.send(did, JSON.parse(raw));
+          showScreen("已对设备" + did + "发送raw指令: " + raw);
+        } catch (e) {
+          showError("数据格式错误：" + e);
+        }
+
+      }
+    }
+
+    function clearLog() {
+      $('#log').html("");
+    }
+
+    //=========================================================
+    // callback functions
+    //=========================================================
+    function onInit(devices) {    // 获取绑定设备列表
+      if (devices.length == 0) {
+        showScreen("没有绑定的设备");
+      } else {
+        for (var i = 0; i < devices.length; i++) {
+          showScreen("==================================================");
+          showScreen("已绑定设备，did=" + devices[i].did);
+          showScreen("已绑定设备，mac=" + devices[i].mac);
+          showScreen("已绑定设备，product_key=" + devices[i].product_key);
+          showScreen("已绑定设备，is_online=" + devices[i].is_online);
+          showScreen("已绑定设备, dev_alias=" + devices[i].dev_alias);
+          showScreen("已绑定设备，remark=" + devices[i].remark);
+
+          addSelectOption('#did', devices[i].did, devices[i].did);    // 添加设备did
+          devicesDid = devices[i].did;
+        }
+        connect();  // 建立websocket连接
+      }
+    }
+
+    function onConnected(did) {       // 连接成功回调函数
+      // addSelectOption('#readDid', did, did);
+      // addSelectOption('#writeDid', did, did);
+      showScreen("与设备:" + did + "连接成功!");
+      read();   // 连接成功后获取设备信息
+    }
+
+    function onOnlineStatusChanged(value) {   // 设备上下线状态变更提醒
+      showScreen("设备上下线通知，did=" + value.did);
+      showScreen("设备上下线通知，is_online=" + value.is_online);
+    }
+
+    function onReceivedRaw(value) {
+      var str = "收到设备" + value.did + "的Raw: [";
+      for (var i = 0; i < value.raw.length; i++) {
+        str = str + value.raw[i] + ",";
+      }
+      str = str.substr(0, str.length - 1) + "]";
+      showScreen(str);
+    }
+
+    function onReceivedAttrs(value) {     // 获取下位机数据  数据更新自动推送
+      var str = "收到设备" + value.did + "的Attrs: ";
+      for (var key in value.attrs) {
+        str = str + key + ":" + value.attrs[key] + "; ";
+      }
+        MyTemperAndHumtyChart.data.labels.push('');
+        getMcuValueDate(value.attrs["valuedata"]);  //  将接收到的arr数据复制到接收缓冲区中
+        getMcuTemperture(value.attrs["Temperature"]);
+        getMcuHumty(value.attrs["Humidity"]);
+        // removeMcuData();
+        showScreen(str);
+    }
+
+    function onError(value) {
+      showError(value.toString());
+    }
+
+    function getMcuValueDate(value) {   // 更新药品库存信息
+        
+        let tempArry = new Array(8);
+        reciveBuffer = [].concat(value);
+        if (reciveBuffer[0] == 7 && reciveBuffer[9] == 7) {
+
+            for (let i = 1; i <= 8; i++) {
+
+                tempArry[i-1] = reciveBuffer[i];
+            }
+            if (historyBuffer.length >= 500) {
+                /* 清空数组前一半数据 */
+                historyBuffer.splice(0,250);
+            }
+            historyBuffer.push(tempArry);
+            for (let i = 0; i < 8; i++) {
+
+                MyStockChart.data.datasets[0].data[i] = tempArry[i];
+            }
+            MyStockChart.update();
+        }
+    }
+
+    function getMcuTemperture(value) {
+
+        addData(MyTemperAndHumtyChart, '', 0, value);
+        if (value >= 40) {
+
+            $('#display-tem').css('color', 'red');  // 温度警报颜色
+        }
+        else $('#display-tem').css('color', '#66ccff');  // 温度显示
+        $('#display-tem').text(value);
+    }
+
+    function getMcuHumty(value) {
+
+        addData(MyTemperAndHumtyChart, '', 1, value);
+        if (value >= 80) {
+
+            $('#display-hum').css('color', 'blue');  // 警报颜色改变
+        }
+        else $('#display-hum').css('color', '#66ccff');  // 湿度显示
+        $('#display-hum').text(value);
+    }
+
+    function removeMcuData() {
+        if (MyTemperAndHumtyChart.data.datasets[0].data.length > 10) {   // 温度和湿度数据总数超过20个之后，前面的数据被清除
+
+            removeData(MyTemperAndHumtyChart);  // 清空第一个数据
+        }
+    }
+
+    setInterval(removeMcuData, 200);  // 定时清除数据点
+
+    //=========================================================
+    // inner functions
+    //=========================================================
+    function showScreen(txt) {
+      $('#log').prepend('<p style="color: blue">' + txt + '</p>');
+    }
+
+    function showError(txt) {
+      $('#log').prepend('<p style="color: red">' + txt + '</p>');
+    }
+
+    function addSelectOption(selectId, value, text) {     // 添加下拉框函数
+      if ($(selectId + ' option[value =' + value + ']').length == 0) {
+        $(selectId).append("<option value=" + value + ">" + text + "</option>");
+      }
+    }
+
+  </script>
+</head>
+
+<body>
+  <!--<table border="0" cellpadding="0" , cellspacing="0">-->
+    <!--<tr>-->
+      <!--<td align="left" valign="top" style="border-right: #d0d0d0 1px solid; padding: 0 10px 0 0;">-->
+        <!--<h4>1. 首先，请初始化GizwitsWS对象</h4>-->
+        <!--<table border="0" cellpadding="0" , cellspacing="2">-->
+          <!--<tr>-->
+            <!--<td align="left" valign="top">-->
+              <!--<label>apiHost:</label>-->
+            <!--</td>-->
+            <!--<td align="left" valign="top">-->
+              <!--<input type="text" id="apiHost" value="api.gizwits.com" size="30" placeholder="api.gizwits.com" list="gizApi"/>-->
+              <!--<datalist id="gizApi">-->
+                <!--<option value="api.gizwits.com"></option>-->
+              <!--</datalist>-->
+            <!--</td>-->
+            <!--<td align="left" valign="top">-->
+              <!--<label style="font-size: small">机智云OpenApi域名</label>-->
+            <!--</td>-->
+          <!--</tr>-->
+          <!--<tr>-->
+            <!--<td align="left" valign="top">-->
+              <!--<label>commType:</label>-->
+            <!--</td>-->
+            <!--<td align="left" valign="top">-->
+              <!--<select id="commType" about="">-->
+                                <!--<option value="attrs_v4" selected="selected">attrs_v4</option>-->
+                                <!--<option value="custom">custom</option>-->
+                            <!--</select>-->
+            <!--</td>-->
+            <!--<td align="left" valign="top">-->
+              <!--<label style="font-size: small">协议格式，custom：自定义协议；attrs_v4：标准数据点协议</label>-->
+            <!--</td>-->
+          <!--</tr>-->
+          <!--<tr>-->
+            <!--<td align="left" valign="top">-->
+              <!--<label>wechatOpenId:</label>-->
+            <!--</td>-->
+            <!--<td align="left" valign="top">-->
+              <!--<input type="text" id="wechatOpenId" value="18888888888" size="30" placeholder="18888888888" list="openId"/>-->
+              <!--<datalist id="openId">-->
+                <!--<option value="18888888888"></option>-->
+              <!--</datalist>-->
+            <!--</td>-->
+            <!--<td align="left" valign="top">-->
+              <!--<label style="font-size: small">微信用户OpenId</label>-->
+            <!--</td>-->
+          <!--</tr>-->
+          <!--<tr>-->
+            <!--<td align="left" valign="top">-->
+              <!--<label>gizwitsAppId:</label>-->
+            <!--</td>-->
+            <!--<td align="left" valign="top">-->
+              <!--<input type="text" id="gizwitsAppId" placeholder="71af18b64fdd4e30a53cf28db2ac83df" size="30" list="gizAppId"/>-->
+              <!--<datalist id="gizAppId">-->
+                <!--<option value="71af18b64fdd4e30a53cf28db2ac83df"></option>-->
+              <!--</datalist>-->
+            <!--</td>-->
+            <!--<td align="left" valign="top">-->
+              <!--<label style="font-size: small">机智云平台应用标识</label>-->
+            <!--</td>-->
+          <!--</tr>-->
+
+        <!--</table>-->
+        <!--<br/>-->
+        <!--<button id="newObj" onclick="newObj()">Do it!</button>-->
+        <!--<br/>-->
+        <!--<p>（初始化对象的过程中，已经自动完成了callback函数的创建。）</p>-->
+        <!--&lt;!&ndash; <h4>2. 然后，使用GizwitsWS.init()获取绑定列表</h4>-->
+        <!--<button id="init" onclick="init()">Do it!</button> &ndash;&gt;-->
+        <!--<br/>-->
+        <!-- <p>（绑定列表会在onInit这个callback函数返回。）</p> -->
+        <!-- <h4>3. 接着，选择一个设备，创建websocket连接</h4> -->
+        <!--<label style="display:inline-block;width: 90px">did:</label><select id="did" about="" style="width: 300px;"></select>-->
+        <!--<button id="connect" onclick="connect()">Do it!</button>-->
+        <!--<br/>-->
+        <!--<p>（websocket创建成功，会回调函数onConnected。）</p>-->
+        <!--<h4>4. 选择已连接设备，读取状态</h4>-->
+        <!--<label style="display:inline-block;width: 90px">did:</label><select id="readDid" about="" style="width: 300px;"></select>-->
+        <!--<label>names:</label><br/>-->
+        <!--<textarea rows="1" cols="1" id="names"></textarea>    // 读数据-->
+
+        <!--<br/>-->
+        <!--<p>（发送指令成功后，稍后会收到设备状态信息。）</p>-->
+        <!--<h4>5. 选择已连接设备，控制一下</h4>-->
+        <!--<label style="display:inline-block;width: 90px">did:</label><select id="writeDid" about="" style="width: 300px;"></select>-->
+        <!--<br/>-->
+        <!--<label>command:</label><br/>-->
+
+        <div class="pageWrapper">
+              <div class="head-nav">
+                  <div class="head-inner">
+                      <div class="header-logo">
+
+                      </div>
+                  </div>
+
+              </div>
+
+              <div class="container animate" style="left: 0px;">
+                  <div class="aside">
+                      <div class="menu-fold">
+                          <div class="sidebar-lineWrap">
+                              <span class="sidebar-toggle-line"></span>
+                              <span class="sidebar-toggle-line"></span>
+                              <span class="sidebar-toggle-line"></span>
+                          </div>
+                      </div>
+                  </div>
+
+                  <div class="main">
+                      <div class="manage-area console">
+                          <div class="manage-area-title">
+                              <h2>移动药房概览</h2>
+                          </div>
+                          <div class="manage-area-main">
+                              <div>
+                                  <div class="yy-manage">
+                                      <div class="yy-display-1">
+                                          <div class="mod-console">
+                                              <div class="mod-console-hd">
+                                                  <h3>温湿度状态</h3>
+                                              </div>
+                                              <div class="mod-console-bd">
+                                                  <div class="dashboard">
+                                                      <div class="dashboard-chart-t">
+                                                          <div class="tem-pic">
+                                                              <img src="../src/img/wendu.jpg" alt="温度计图标">
+                                                          </div>
+                                                          <div id="display-tem"></div>
+                                                      </div>
+                                                      <div class="dashboard-chart-h" >
+                                                          <div class="hum-pic">
+                                                              <img src="../src/img/shidu.jpg" alt="湿度计图标">
+                                                          </div>
+                                                          <div id="display-hum"></div>
+                                                      </div>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                      <div class="yy-display-1">
+                                          <div class="mod-console">
+                                              <div class="mod-console-hd">
+                                                  <h3>温湿度历史状况</h3>
+                                              </div>
+                                              <div class="mod-console-bd">
+                                                  <div class="dashboard">
+                                                      <div class="dashboard-chart-th">
+                                                         <canvas id="th-chart" width="500" height="200"></canvas>
+                                                      </div>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div class="yy-manage">
+                                      <div class="yy-display-2">
+                                          <div class="mod-console">
+                                              <div class="mod-console-hd">
+                                                  <h3>药品库存实时监控情况</h3>
+                                              </div>
+                                              <div class="mod-console-bd">
+                                                  <div class="dashboard">
+                                                      <div class="dashboard-chart-stock">
+                                                          <canvas id="stock-chart" width="900" height="400"></canvas>
+                                                      </div>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+
+                <!--<div id="showLogs">-->
+                  <!--<span id="log"></span>-->
+                  <!--<button id="clear" onclick="clearLog();">clear</button><br/>-->
+                <!--</div>-->
+              <!--</div>-->
+        </div>
+
+
+
+
+              <p>读取信息按键，待修改</p>
+
+              <textarea rows="10" cols="90" id="command" placeholder='如果commType=custom，请输入p0，例如[<byte>,<byte>,<byte>...]；如果commType=attrs_v4，请输入datapoints，例如{"power":true}'></textarea>
+              <br/>
+
+
+              <button id="write" onclick="writeCommand()">Do it!</button>
+              <p>控制下位机，待修改</p>
+        </div>
+
+        <script>
+            var TemperandHumtyChart = $("#th-chart");  // 实例化温度、湿度变化折线图
+            var StockmanageChart = $("#stock-chart");  // 实例化药品库存管理柱状图
+
+            Chart.defaults.global.responsive = true;
+            Chart.defaults.global.defaultFontColor = 'black';
+
+            function addData(chart, label, which, data) {    // 实时添加数据到图表
+                    chart.data.datasets.forEach(function (datasets,index) {
+
+                        if (index === which) {
+                            datasets.data.push(data);
+                        }
+                    })
+                chart.update();
+            }
+
+            function removeData(chart) {      // 实时从图表中移除数据
+                chart.data.labels.splice(0, 1);
+                chart.data.datasets.forEach((dataset) => {
+                    dataset.data.splice(0, 1);
+                });
+                chart.update();
+            }
+
+
+            var MyTemperAndHumtyChart = new Chart(TemperandHumtyChart, {
+
+               type: 'line',
+
+               data : {
+                   labels:[],
+                   datasets: [{
+                       label: '温度',
+                       backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                       borderColor: 'rgba(255,99,132,1)',
+                       borderWidth: 1.8,
+                       data: [],
+                       fill: false
+                   },
+                   {
+                       label: '湿度',
+                       backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                       borderColor: 'rgba(255, 206, 86, 1)',
+                       borderWidth: 1.8,
+                       data: [],
+                       fill: false
+                   }]
+               },
+
+               options : {
+                   responsive: true,
+                   title: {
+                       display: true,
+                       lineHeight: 0.2,
+                       fontFamily: 'Helvetica Neue',
+                       fontColor: '#66ccfe',
+                       padding: 8,
+                       text: '历史温湿度监测'
+                   },
+                   tooltips: {
+                       mode: 'index',
+                       intersect: false,
+                       bodyFontSize: 10,
+                       bodyFontColor: '#f2f2f2',
+                   },
+                   hover: {
+                       mode: 'nearest',
+                       intersect: false
+                   },
+                   scales: {
+                       yAxes: [{
+                           display: true,
+                           scaleLabel: {
+                               display: false,
+                               labelString: '温度'
+                           },
+                           ticks: {
+                               beginAtZero:false
+                           },
+                           // stacked: true,
+                       }],
+                       xAxes: [{
+                           scaleLabel: {
+                               display: false,
+                               labelString: 'T'
+                           }
+                       }]
+                   },
+                   elements: {
+                       line: {
+                           // tension: 0, // disables bezier curves 消除贝塞尔曲线效果
+                       }
+                   }
+               }
+            });
+
+            var MyStockChart = new Chart(StockmanageChart, {
+
+                type: 'bar',
+
+                data: {
+                    labels: ['药品一', '药品二', '药品三', '药品四', '药品五', '药品六', '药品七', '药品八'],
+
+                    datasets: [{
+
+                        label: '药品库存',
+                        backgroundColor: [
+                            '#fbe2e6',
+                            '#fceddd',
+                            '#fef5e1',
+                            '#e1f2f2',
+                            '#ddecfa',
+                            '#e9e1fd',
+                            '#d3d479',
+                            '#79d4d1',
+                        ],
+                        borderColor: 'rgba(54, 155, 223, 0.466)',
+                        borderWidth: 1.6,
+                        data: [0,0,0,0,0,0,0,0],
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    title: {
+                        display: true,
+                        lineHeight: 0.2,
+                        fontFamily: 'Helvetica Neue',
+                        fontColor: '#66c',
+                        padding: 8,
+                        text: '药品库存信息管理'
+                    },
+                    tooltips: {
+                        mode: 'index',
+                        intersect: false,
+                        bodyFontSize: 10,
+                        bodyFontColor: '#f2f2f2',
+                    },
+                    hover: {
+                        mode: 'nearest',
+                        intersect: false
+                    },
+                    scales: {
+                        yAxes: [{
+                            display: true,
+                            scaleLabel: {
+                                display: true,
+                                labelString: '药品数量'
+                            },
+                            ticks: {
+                                beginAtZero:true
+                            },
+                            // stacked: true,
+                        }],
+                        xAxes: [{
+                            scaleLabel: {
+                                display: false,
+                                labelString: 'T'
+                            }
+                        }]
+                    },
+                }
+            })
+            /* 测试用增删数据 */
+        </script>
+
+</body>
+
+</html>

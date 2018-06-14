@@ -1,0 +1,338 @@
+* {
+
+    padding: 0px;
+    margin: 0px;
+}
+
+div {
+
+    display: block;
+}
+
+/* 页面头部 */
+.head-nav {
+
+    height: 50px;
+    width: 100%;
+    font-size: 0px;
+    background-color: #262626;
+    box-sizing: border-box;
+    display: block;
+}
+
+/* 主页面 */
+.container {
+
+    position: absolute;
+    height: auto;
+    top: 50px;
+    right: 0px;
+    bottom: 0px;
+    background-color: #f2f2f2;
+    transform: none !important;
+    /*兼容IE7以下,去除transform效果*/
+}
+
+.container .animate {
+
+    transition: left 0.4s;
+}
+
+
+/* 侧边栏控制台 */
+.container .aside {     /* 侧边栏 */
+
+    position: relative;
+    border-right: none;
+    background-color: #333;
+    width: 200px;
+    height: 100%;
+    display: inline-block;
+    vertical-align: top;
+    /*display: none;*/
+
+}
+
+/* 侧边栏切换箭头 */
+.menu-fold {
+
+    position: absolute;
+    width: 20px;
+    height: 18px;
+    z-index: 100;   /*层叠顺序，显示在上层*/
+    top: 4px;
+    right: 0px;
+    background-color: #575757;
+    border-radius: 2px 0 0 2px;
+    cursor: pointer;
+    padding: 5px;
+
+    transition: all 0.8s;
+    -webkit-transition: all 0.8s; /* Safari and Chrome */
+}
+
+.menu-fold:hover {
+
+    background-color: #404040;
+    border-color: #404040;
+}
+
+.sidebar-toggle-line:first-child {
+
+    margin-top: 0px;
+}
+
+/* 侧边栏切换按钮 */
+.sidebar-lineWrap {
+
+    line-height: 0px;
+}
+
+.sidebar-toggle-line {      /* 侧边栏切换箭头 */
+
+    position: relative;
+    display: inline-block;
+    vertical-align: top;
+    height: 2px;
+    background: #fff;
+    margin-top: 5px;
+
+    width: 100%;
+    top: 0px;
+    transform: rotateZ(0deg);
+    opacity: 1;
+    left: 0px;
+    transition: all 0.8s;
+    -webkit-transition: all 0.8s; /* Safari and Chrome */
+}
+
+.menu-fold:hover .sidebar-toggle-line:first-child{
+
+    width: 52%;
+    left: -1px;
+    transform: rotateZ(-45deg);
+    top: 3px;
+}
+
+.menu-fold:hover .sidebar-toggle-line:last-child {
+
+    width: 52%;
+    left: -1px;
+    transform: rotateZ(45deg);
+    top: -3px;
+}
+
+/* 主界面 */
+.main {
+
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: #fff;
+}
+
+.container .main {
+
+    left: 200px;
+}
+
+.console {
+
+    overflow: auto;
+}
+
+.manage-area {
+
+    background-color: #fff;
+    height: 100%;
+}
+
+/* 主管理界面头部 */
+.manage-area-title {
+
+    position: relative;
+    margin: 0px 20px;
+    font-size: 0px;
+    height: 60px;
+    line-height: 60px;
+}
+
+.manage-area-title h2 {
+
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 18px;
+    line-height: 60px;
+    font-weight: 700;
+    margin-right: 20px;
+    max-width: 70%;
+    overflow: hidden;
+    white-space: nowrap;    /* 文本不换行 */
+    text-overflow: ellipsis;    /* 多余文本用省略号显示 */
+}
+
+/* 主管理界面主体部分 */
+.console .manage-area-main {
+
+    margin-left: 18px;
+    margin-right: 18px;
+}
+
+.manage-area-main:after {   /* 清除浮动 */
+
+    display: table;
+    content: "";
+    clear: both;
+}
+
+/* 温湿度数据显示 */
+.yy-manage {
+
+    margin-left: -10px;
+    margin-right: -10px;
+    font-size: 0px;
+}
+
+.yy-manage [class*=yy-display] {    /* 全部监控板块共有状态 */
+
+    display: inline-block;
+    vertical-align: top;
+    font-size: 16px;
+    box-sizing: border-box;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.yy-display-1 {     /* 第一行监控板块 */
+
+    width: 50%;
+}
+
+.mod-console {
+
+    background-color: #fff;
+    border-radius: 0;
+    padding: 0 16px 16px;
+    border: none;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px 0 rgba(0,0,0,.3);
+}
+
+.mod-console-hd {
+
+    line-height: 44px;
+    position: relative;
+}
+
+.mod-console-hd h3 {
+
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.mod-console-bd {
+
+    font-size: 12px;
+    color: #444;
+}
+
+.dashboard {    /* 显示部分 */
+
+    display: table;
+    margin: 0 auto;
+}
+
+.dashboard-chart-t {
+
+    vertical-align: middle;
+    width: 200px;
+    height: 200px;
+    text-align: center;
+    font-size: 0;
+    position: relative;
+    display: table-cell;
+}
+
+.dashboard-chart-h {
+
+    vertical-align: middle;
+    width: 200px;
+    height: 200px;
+    text-align: center;
+    font-size: 0px;
+    padding-left: 10px;
+    display: table-cell;
+}
+
+.dashboard-chart-th {
+
+    vertical-align: middle;
+    width: 200px;
+    height: 200px;
+    text-align: center;
+    font-size: 0px;
+    padding-left: 10px;
+    display: table-cell;
+}
+
+#display-hum {
+
+    font-size: 20px;
+}
+
+#display-tem {
+
+    font-size: 20px;
+}
+
+.tem-pic {
+
+    height: 150px;
+}
+
+.hum-pic {
+
+    height: 150px;
+}
+
+/* 库存显示板块 */
+.yy-display-2 {
+
+    width: 100%;
+}
+
+.dashboard-chart-stock {
+
+    vertical-align: middle;
+    width: 900px;
+    height: 400px;
+    text-align: center;
+    font-size: 0;
+    position: relative;
+    display: table-cell;
+}
+
+
+
+#showLogs {
+
+    border: 2px solid blanchedalmond;
+    position: fixed;
+    height: 45%;
+    width: 20%;
+    top: 30%;
+    right: 0px;
+    overflow: auto;
+    z-index: 100;
+}
+
+#clear {
+
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+}
+
