@@ -1,7 +1,7 @@
 * {
 
-    padding: 0px;
-    margin: 0px;
+    padding: 0;
+    margin: 0;
 }
 
 div {
@@ -9,16 +9,63 @@ div {
     display: block;
 }
 
+li {
+
+    list-style: none;
+}
+
+li {
+
+    display: list-item;
+    text-align: -webkit-match-parent;
+}
+
+a {
+
+    text-decoration: none;
+}
 /* 页面头部 */
 .head-nav {
 
     height: 50px;
     width: 100%;
-    font-size: 0px;
+    font-size: 0;
     background-color: #262626;
     box-sizing: border-box;
     display: block;
 }
+
+.head-inner {
+
+    display: table;
+    width: 100%;
+}
+
+.head-unit {
+
+    display: table-cell;
+    vertical-align: top;
+}
+
+.header-logo {
+
+    width: 65px;
+}
+
+.nav-logo {
+
+    display: block;
+}
+
+.nav-logo-inner {
+
+    height: 32px;
+    display: inline-block;
+    padding: 0 20px;
+    margin: 9px 0;
+    border-right: 1px solid #000;
+}
+
 
 /* 主页面 */
 .container {
@@ -26,8 +73,8 @@ div {
     position: absolute;
     height: auto;
     top: 50px;
-    right: 0px;
-    bottom: 0px;
+    right: 0;
+    bottom: 0;
     background-color: #f2f2f2;
     transform: none !important;
     /*兼容IE7以下,去除transform效果*/
@@ -50,18 +97,36 @@ div {
     display: inline-block;
     vertical-align: top;
     /*display: none;*/
-
+    transition: all 0.8s;
+    -webkit-transition: all 0.8s; /* Safari and Chrome */
 }
-
 /* 侧边栏切换箭头 */
-.menu-fold {
+.aside [class*=menu-fold] {
 
     position: absolute;
     width: 20px;
     height: 18px;
     z-index: 100;   /*层叠顺序，显示在上层*/
     top: 4px;
-    right: 0px;
+    right: 0;
+    background-color: #575757;
+    border-radius: 2px 0 0 2px;
+    cursor: pointer;
+    padding: 5px;
+
+    transition: all 0.8s;
+    -webkit-transition: all 0.8s; /* Safari and Chrome */
+}
+
+.menu-close-btn {
+
+    display: none;
+    position: fixed;
+    left: 1%;
+    top: 80px;
+    width: 20px;
+    height: 18px;
+    z-index: 100;
     background-color: #575757;
     border-radius: 2px 0 0 2px;
     cursor: pointer;
@@ -79,13 +144,13 @@ div {
 
 .sidebar-toggle-line:first-child {
 
-    margin-top: 0px;
+    margin-top: 0;
 }
 
 /* 侧边栏切换按钮 */
 .sidebar-lineWrap {
 
-    line-height: 0px;
+    line-height: 0;
 }
 
 .sidebar-toggle-line {      /* 侧边栏切换箭头 */
@@ -98,15 +163,21 @@ div {
     margin-top: 5px;
 
     width: 100%;
-    top: 0px;
+    top: 0;
     transform: rotateZ(0deg);
     opacity: 1;
-    left: 0px;
+    left: 0;
     transition: all 0.8s;
     -webkit-transition: all 0.8s; /* Safari and Chrome */
 }
 
-.menu-fold:hover .sidebar-toggle-line:first-child{
+.menu-fold:hover .aside{
+
+    display: none;
+    transform: scaleX(0);
+}
+
+.menu-fold:hover .sidebar-toggle-line:first-child {
 
     width: 52%;
     left: -1px;
@@ -122,21 +193,121 @@ div {
     top: -3px;
 }
 
+/* 关闭状态 */
+.menu-close-btn:hover .sidebar-toggle-line:first-child {
+
+    width: 52%;
+    left: 10px;
+    transform: rotateZ(45deg);
+    top: 3px;
+}
+
+.menu-close-btn:hover .sidebar-toggle-line:last-child {
+
+    width: 52%;
+    left: 10px;
+    transform: rotateZ(-45deg);
+    top: -3px;
+}
+
+/* 侧边栏导航栏 */
+.side-area-main {
+
+    position: relative;
+    height: 100%;
+}
+
+.aside-headline {
+
+    font-size: 16px;
+    line-height: 1.2;
+    display: block;
+    padding: 0 20px;
+    color: #fff;
+    height: 50px;
+    width: 200px;
+    box-sizing: border-box;
+}
+
+.aside-headline:before {
+
+    content: '';
+    width: 0;
+    height: 100%;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.aside-headline span {
+
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.aside-list {
+
+    font-size: 12px;
+    position: absolute;
+    top: 70px;
+    bottom: 0;
+    width: 100%;
+    overflow: auto;
+}
+
+.aside-list>li {
+
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+    outline: 0;
+}
+
+.aside-list li:hover {
+
+    background-color: #404040;
+}
+
+.aside-list a {
+
+    color: #bbb;
+    font-size: 13px;
+}
+.aside-list-level1 {
+
+    min-height: 16px;
+    display: block;
+    padding-top: 5px;
+    padding-bottom: 4px;
+}
+
+.aside-list-level1 span {
+
+    max-width: 138px;
+    line-height: 2;
+    display: inline-block;
+    vertical-align: text-top;
+    margin-left: 20px;
+    font-size: 14px;
+
+}
 /* 主界面 */
 .main {
 
     position: absolute;
-    top: 0px;
-    right: 0px;
-    bottom: 0px;
+    top: 0;
+    right: 0;
+    bottom: 0;
     overflow-x: hidden;
     overflow-y: auto;
     background-color: #fff;
+    transition: all 0.8s;
+    -webkit-transition: all 0.8s; /* Safari and Chrome */
 }
 
 .container .main {
 
-    left: 200px;
+    /*left: 200px;*/
+    width: 85%;
 }
 
 .console {
@@ -154,8 +325,8 @@ div {
 .manage-area-title {
 
     position: relative;
-    margin: 0px 20px;
-    font-size: 0px;
+    margin: 0 20px;
+    font-size: 0;
     height: 60px;
     line-height: 60px;
 }
@@ -193,7 +364,7 @@ div {
 
     margin-left: -10px;
     margin-right: -10px;
-    font-size: 0px;
+    font-size: 0;
 }
 
 .yy-manage [class*=yy-display] {    /* 全部监控板块共有状态 */
@@ -262,7 +433,7 @@ div {
     width: 200px;
     height: 200px;
     text-align: center;
-    font-size: 0px;
+    font-size: 0;
     padding-left: 10px;
     display: table-cell;
 }
@@ -273,7 +444,7 @@ div {
     width: 200px;
     height: 200px;
     text-align: center;
-    font-size: 0px;
+    font-size: 0;
     padding-left: 10px;
     display: table-cell;
 }
@@ -324,7 +495,7 @@ div {
     height: 45%;
     width: 20%;
     top: 30%;
-    right: 0px;
+    right: 0;
     overflow: auto;
     z-index: 100;
 }
@@ -332,7 +503,7 @@ div {
 #clear {
 
     position: absolute;
-    right: 0px;
-    bottom: 0px;
+    right: 0;
+    bottom: 0;
 }
 

@@ -330,16 +330,47 @@
         <div class="pageWrapper">
               <div class="head-nav">
                   <div class="head-inner">
-                      <div class="header-logo">
-
+                      <div class="head-unit header-logo">
+                          <div class="nav-logo">
+                              <a href="http://www.baidu.com" class="nav-logo-inner"></a>
+                          </div>
                       </div>
+
                   </div>
 
               </div>
 
               <div class="container animate" style="left: 0px;">
-                  <div class="aside">
-                      <div class="menu-fold">
+                  <div class="aside" id="aside-menus">
+                      <div class="side-area-main">
+                          <h2 class="aside-headline">
+                              <span>售药机控制台</span>
+                          </h2>
+                          <ul class="aside-list">
+                              <li>
+                                  <a href="#" class="aside-list-level1">
+                                      <span>概览</span>
+                                  </a>
+                              </li>
+                              <li>
+                                  <a href="#" class="aside-list-level1">
+                                      <span>读数据</span>
+                                  </a>
+                              </li>
+                              <li>
+                                  <a href="#" class="aside-list-level1">
+                                      <span>控制</span>
+                                  </a>
+                              </li>
+                              <li>
+                                  <a href="#" class="aside-list-level1">
+                                      <span>其他</span>
+                                  </a>
+                              </li>
+
+                          </ul>
+                      </div>
+                      <div class="menu-fold" id="aside-button">
                           <div class="sidebar-lineWrap">
                               <span class="sidebar-toggle-line"></span>
                               <span class="sidebar-toggle-line"></span>
@@ -347,8 +378,15 @@
                           </div>
                       </div>
                   </div>
+                  <div class="menu-close-btn">
+                      <div class="sidebar-lineWrap">
+                          <span class="sidebar-toggle-line"></span>
+                          <span class="sidebar-toggle-line"></span>
+                          <span class="sidebar-toggle-line"></span>
+                      </div>
+                  </div>
 
-                  <div class="main">
+                  <div class="main" id="appArea">
                       <div class="manage-area console">
                           <div class="manage-area-title">
                               <h2>移动药房概览</h2>
@@ -601,7 +639,44 @@
             })
             /* 测试用增删数据 */
         </script>
+        <script>
+              var asidClick = (function () {        // 侧边栏按键点击函数
+                  function init() {
 
+                      open = true;
+                      let asideOpenIcon = $('#aside-button');
+                      let asideMenu = $('.aside');
+                      let mainPage = $('#appArea');
+                      let asideCloseIcon = $('.menu-close-btn');
+                      let asideMain = $('.side-area-main');
+
+                      asideOpenIcon.on('click', function () {
+                          if (open) {
+
+                              asideMenu.css('width', '0');
+                              mainPage.css('width', '96%');
+                              asideMain.fadeOut('normal');
+                              setTimeout(function () {
+                                  asideCloseIcon.css('display', 'block');
+                              }, 580);
+                              open = false;
+                          }
+                      });
+
+                      asideCloseIcon.on('click', function () {
+
+                          if (!open) {
+
+                              asideMenu.css('width', '200');
+                              mainPage.css('width', '85%');
+                              asideMain.fadeIn('normal');
+                              asideCloseIcon.fadeOut(100);
+                              open = true;
+                          }
+                      });
+                  }
+                  init();
+              })();
+        </script>
 </body>
-
 </html>
