@@ -3,19 +3,19 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>js-sdk-test</title>
+  <title></title>
   <link rel="stylesheet" href="index.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
   <script src="jquery.min.js"></script>
   <script src="jquery.cookie.min.js"></script>
-  <script src="../src/gizwits_ws_0.3.0.min.js"></script>
+  <script src="./src/gizwits_ws_0.3.0.min.js"></script>
   <script type="text/javascript">
     var gizwitsws;
     var devicesDid;
 
     var apiHost = "api.gizwits.com";
     var commType = "attrs_v4";
-    var wechatOpenId = "7777777";
+    var wechatOpenId = "11507990712";
     var gizwitsAppId = "71af18b64fdd4e30a53cf28db2ac83df";
 
     var sendArry = new Array(50); // 控制发送数组初始化
@@ -79,11 +79,13 @@
     function writeCommand() {     // 控制下位机设备函数
       var did = devicesDid;
       if (commType == "attrs_v4") {
-        // var attrs = {"valuedata": [1,2,3,4]};     // 控制指令有点问题
-        var attrs = $('#command').val()
+        let attrs = {"valuedata": sendArry};     // 控制指令
+        // var attrs = $('#command').val();
+        console.log(JSON.stringify(attrs));
+        let controldata = JSON.stringify(attrs);    // 利用原生json方法将对象转为字符串
         try {
-          gizwitsws.write(did, JSON.parse(attrs));
-          showScreen("已对设备" + did + "发送write指令: " + attrs);
+            gizwitsws.write(did, JSON.parse(controldata));        // 将对象转为字符串
+            showScreen("已对设备" + did + "发送write指令: " + controldata);
         } catch (e) {
           showError("数据格式错误：" + e);
         }
@@ -120,7 +122,7 @@
           showScreen("已绑定设备，remark=" + devices[i].remark);
 
           addSelectOption('#did', devices[i].did, devices[i].did);    // 添加设备did
-          devicesDid = devices[i].did;
+          devicesDid = devices[1].did;
         }
         connect();  // 建立websocket连接
       }
@@ -172,7 +174,7 @@
 
             for (let i = 1; i <= 8; i++) {
 
-                tempArry[i-1] = reciveBuffer[i];
+                tempArry[i-1] = reciveBuffer[i] - 1;
             }
             if (historyBuffer.length >= 500) {
                 /* 清空数组前一半数据 */
@@ -237,74 +239,7 @@
 
   </script>
 </head>
-
 <body>
-  <!--<table border="0" cellpadding="0" , cellspacing="0">-->
-    <!--<tr>-->
-      <!--<td align="left" valign="top" style="border-right: #d0d0d0 1px solid; padding: 0 10px 0 0;">-->
-        <!--<h4>1. 首先，请初始化GizwitsWS对象</h4>-->
-        <!--<table border="0" cellpadding="0" , cellspacing="2">-->
-          <!--<tr>-->
-            <!--<td align="left" valign="top">-->
-              <!--<label>apiHost:</label>-->
-            <!--</td>-->
-            <!--<td align="left" valign="top">-->
-              <!--<input type="text" id="apiHost" value="api.gizwits.com" size="30" placeholder="api.gizwits.com" list="gizApi"/>-->
-              <!--<datalist id="gizApi">-->
-                <!--<option value="api.gizwits.com"></option>-->
-              <!--</datalist>-->
-            <!--</td>-->
-            <!--<td align="left" valign="top">-->
-              <!--<label style="font-size: small">机智云OpenApi域名</label>-->
-            <!--</td>-->
-          <!--</tr>-->
-          <!--<tr>-->
-            <!--<td align="left" valign="top">-->
-              <!--<label>commType:</label>-->
-            <!--</td>-->
-            <!--<td align="left" valign="top">-->
-              <!--<select id="commType" about="">-->
-                                <!--<option value="attrs_v4" selected="selected">attrs_v4</option>-->
-                                <!--<option value="custom">custom</option>-->
-                            <!--</select>-->
-            <!--</td>-->
-            <!--<td align="left" valign="top">-->
-              <!--<label style="font-size: small">协议格式，custom：自定义协议；attrs_v4：标准数据点协议</label>-->
-            <!--</td>-->
-          <!--</tr>-->
-          <!--<tr>-->
-            <!--<td align="left" valign="top">-->
-              <!--<label>wechatOpenId:</label>-->
-            <!--</td>-->
-            <!--<td align="left" valign="top">-->
-              <!--<input type="text" id="wechatOpenId" value="18888888888" size="30" placeholder="18888888888" list="openId"/>-->
-              <!--<datalist id="openId">-->
-                <!--<option value="18888888888"></option>-->
-              <!--</datalist>-->
-            <!--</td>-->
-            <!--<td align="left" valign="top">-->
-              <!--<label style="font-size: small">微信用户OpenId</label>-->
-            <!--</td>-->
-          <!--</tr>-->
-          <!--<tr>-->
-            <!--<td align="left" valign="top">-->
-              <!--<label>gizwitsAppId:</label>-->
-            <!--</td>-->
-            <!--<td align="left" valign="top">-->
-              <!--<input type="text" id="gizwitsAppId" placeholder="71af18b64fdd4e30a53cf28db2ac83df" size="30" list="gizAppId"/>-->
-              <!--<datalist id="gizAppId">-->
-                <!--<option value="71af18b64fdd4e30a53cf28db2ac83df"></option>-->
-              <!--</datalist>-->
-            <!--</td>-->
-            <!--<td align="left" valign="top">-->
-              <!--<label style="font-size: small">机智云平台应用标识</label>-->
-            <!--</td>-->
-          <!--</tr>-->
-
-        <!--</table>-->
-        <!--<br/>-->
-        <!--<button id="newObj" onclick="newObj()">Do it!</button>-->
-        <!--<br/>-->
         <!--<p>（初始化对象的过程中，已经自动完成了callback函数的创建。）</p>-->
         <!--&lt;!&ndash; <h4>2. 然后，使用GizwitsWS.init()获取绑定列表</h4>-->
         <!--<button id="init" onclick="init()">Do it!</button> &ndash;&gt;-->
@@ -348,18 +283,18 @@
                           </h2>
                           <ul class="aside-list">
                               <li>
-                                  <a href="#" class="aside-list-level1">
+                                  <a href="index.html" class="aside-list-level1">
                                       <span>概览</span>
                                   </a>
                               </li>
                               <li>
-                                  <a href="#" class="aside-list-level1">
+                                  <a href="#" class="aside-list-level1" id="readData">
                                       <span>读数据</span>
                                   </a>
                               </li>
                               <li>
-                                  <a href="#" class="aside-list-level1">
-                                      <span>控制</span>
+                                  <a href="#" class="aside-list-level1" id="opendoor">
+                                      <span>开门</span>
                                   </a>
                               </li>
                               <li>
@@ -403,13 +338,13 @@
                                                   <div class="dashboard">
                                                       <div class="dashboard-chart-t">
                                                           <div class="tem-pic">
-                                                              <img src="../src/img/wendu.jpg" alt="温度计图标">
+                                                              <img src="./src/img/wendu.jpg" alt="温度计图标">
                                                           </div>
                                                           <div id="display-tem"></div>
                                                       </div>
                                                       <div class="dashboard-chart-h" >
                                                           <div class="hum-pic">
-                                                              <img src="../src/img/shidu.jpg" alt="湿度计图标">
+                                                              <img src="./src/img/shidu.jpg" alt="湿度计图标">
                                                           </div>
                                                           <div id="display-hum"></div>
                                                       </div>
@@ -453,11 +388,11 @@
                       </div>
                   </div>
 
-                <!--<div id="showLogs">-->
-                  <!--<span id="log"></span>-->
-                  <!--<button id="clear" onclick="clearLog();">clear</button><br/>-->
-                <!--</div>-->
-              <!--</div>-->
+                <div id="showLogs">
+                  <span id="log"></span>
+                  <button id="clear" onclick="clearLog();">clear</button><br/>
+                </div>
+              </div>
         </div>
 
 
@@ -677,6 +612,36 @@
                   }
                   init();
               })();
+        </script>
+        <script>
+            var readClick = (function () {          // 手动读取下位机信息
+                function readInit() {
+
+                    let readBlock = $('#readData');
+
+                    readBlock.on('click', function () {
+
+                        read();
+                    });
+                }
+                readInit();
+            })();
+
+            var opendoors = (function () {      // 管理员控制开关门
+                function controlInit() {
+
+                    let doorbtn = $("#opendoor");
+
+                    doorbtn.on('click', function () {
+
+                        sendArry[49] = 1;
+                        // sendArry[49] = 'a';
+                        writeCommand();
+                        sendArry[49] = 0;
+                    });
+                }
+                controlInit();
+            })();
         </script>
 </body>
 </html>
