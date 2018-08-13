@@ -122,7 +122,7 @@
           showScreen("已绑定设备，remark=" + devices[i].remark);
 
           addSelectOption('#did', devices[i].did, devices[i].did);    // 添加设备did
-          devicesDid = devices[1].did;
+          devicesDid = devices[2].did;
         }
         connect();  // 建立websocket连接
       }
@@ -171,7 +171,7 @@
         let tempArry = new Array(8);
         reciveBuffer = [].concat(value);
         if (reciveBuffer[0] == 7 && reciveBuffer[9] == 7) {
-
+            console.log('收到一次库存数据!');
             for (let i = 1; i <= 8; i++) {
 
                 tempArry[i-1] = reciveBuffer[i] - 1;
