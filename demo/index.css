@@ -321,6 +321,12 @@ a {
     height: 100%;
 }
 
+.pic-monitor {  /* 图片监控管理界面 */
+
+    background-color: #fff;
+    height: 100%;
+}
+
 /* 主管理界面头部 */
 .manage-area-title {
 
@@ -345,6 +351,27 @@ a {
     text-overflow: ellipsis;    /* 多余文本用省略号显示 */
 }
 
+/* 图片监控界面头部 */
+.pic-header {
+    position: relative;
+    margin: 0 20px;
+    font-size: 0;
+    height: 60px;
+    line-height: 60px;
+}
+
+.pic-header > h2 {
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 18px;
+    font-weight: 700;
+    margin-right: 20px;
+    max-width: 70%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
 /* 主管理界面主体部分 */
 .console .manage-area-main {
 
@@ -359,6 +386,63 @@ a {
     clear: both;
 }
 
+/* 图片监控界面主体部分 */
+.pic-area-main {
+
+    margin-left: 18px;
+    margin-right: 18px;
+}
+
+/* 图片显示区域 */
+.picshow {
+
+    margin-left: -10px;
+    margin-right: -10px;
+    display: inline-block;
+    font-size: 16px;
+    box-sizing: border-box;
+    padding-left: 10px;
+    padding-right: 10px;
+    vertical-align: top;
+    width: 100%;
+}
+
+.picBlock {
+    width: 100%;
+    min-height: 400px;
+    background-color: #fff;
+    border-radius: 0;
+    padding: 0 16px 16px;
+    /* border: none; */
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .3);
+    display: flex;
+    /* Safari */
+    display: -webkit-flex;
+
+    /* 主轴换行 */
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-content: flex-start;
+}
+
+/* 图片监控显示 */
+.picdisplay {
+    border: 1px solid rgb(54, 164, 207);
+    box-shadow: 5px 5px 6px 3px rgba(99, 98, 98, 0.884);
+    width: 300px;
+    height: 300px;
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+
+.monitor-img {
+    /* z-index: -1; */
+    position: relative;
+    width: 300px;
+    height: 300px;
+}
+
 /* 温湿度数据显示 */
 .yy-manage {
 
@@ -368,7 +452,7 @@ a {
 }
 
 .yy-manage [class*=yy-display] {    /* 全部监控板块共有状态 */
-
+ 
     display: inline-block;
     vertical-align: top;
     font-size: 16px;
